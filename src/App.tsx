@@ -7,20 +7,25 @@ import { IncidentsFeed } from './components/IncidentsFeed';
 import { ImmuneResponse } from './components/ImmuneResponse';
 import type { KioskId } from './types';
 
+const TYPE_TO_SCENARIO: Record<string, string> = {
+  'suspicious-item': 'scan_avoidance',
+  'weight-mismatch': 'barcode_switch',   // or create a dedicated weight_mismatch.jsonl
+  'rfid-anomaly': 'exit_unpaid',
+  'normal-checkout': 'normal_checkout',  // only if you add this scenario file
+};
+
 function App() {
   const { isConnected, kiosks, currentBasket, incidents } = useSocket();
   const [selectedKiosk, setSelectedKiosk] = useState<KioskId | null>(null);
 
   const handleSimulate = async (type: string) => {
+    const scenario = TYPE_TO_SCENARIO[type] ?? 'scan_avoidance';
     try {
-      const response = await fetch('http://localhost:5000/simulate', {
+      const response = await fetch('http://localhost:4000/simulate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ type }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scenario }),
       });
-
       if (!response.ok) {
         console.error('Simulation request failed');
       }
@@ -28,6 +33,9 @@ function App() {
       console.error('Failed to trigger simulation:', error);
     }
   };
+
+  const basketForSelected =
+    selectedKiosk && currentBasket?.kioskId === selectedKiosk ? currentBasket : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
@@ -42,7 +50,9 @@ function App() {
                 <h1 className="text-3xl font-bold text-white tracking-tight">
                   Retail360<span className="text-cyan-400">+</span>
                 </h1>
-                <p className="text-slate-400 text-sm">A 360 solution for shrinkage, efficiency, and customer experience.</p>
+                <p className="text-slate-400 text-sm">
+                  A 360 solution for shrinkage, efficiency, and customer experience.
+                </p>
               </div>
             </div>
 
@@ -55,7 +65,9 @@ function App() {
                 }`}
               >
                 {isConnected ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
-                <span className="text-sm font-medium">{isConnected ? 'Connected' : 'Disconnected'}</span>
+                <span className="text-sm font-medium">
+                  {isConnected ? 'Connected' : 'Disconnected'}
+                </span>
               </div>
             </div>
           </div>
@@ -64,8 +76,12 @@ function App() {
 
       <main className="max-w-[1920px] mx-auto px-8 py-8">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
-          <DigitalTwin kiosks={kiosks} selectedKiosk={selectedKiosk} onSelectKiosk={setSelectedKiosk} />
-          <LiveBasket basket={selectedKiosk ? currentBasket : null} />
+          <DigitalTwin
+            kiosks={kiosks}
+            selectedKiosk={selectedKiosk}
+            onSelectKiosk={setSelectedKiosk}
+          />
+          <LiveBasket basket={basketForSelected} />
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
@@ -75,7 +91,7 @@ function App() {
       </main>
 
       <footer className="text-center text-slate-500 text-sm py-6">
-        <p>SentinelX+ Dashboard v1.0 - Real-time monitoring powered by Socket.IO</p>
+        <p>SentinelX+ Dashboard v1.0 — Real-time monitoring powered by Socket.IO</p>
       </footer>
     </div>
   );
