@@ -40,9 +40,9 @@ function App() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white tracking-tight">
-                  SentinelX<span className="text-cyan-400">+</span>
+                  Retail360<span className="text-cyan-400">+</span>
                 </h1>
-                <p className="text-slate-400 text-sm">Self-Checkout Monitoring System</p>
+                <p className="text-slate-400 text-sm">A 360 solution for shrinkage, efficiency, and customer experience.</p>
               </div>
             </div>
 

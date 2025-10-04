@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import type { Kiosk, LiveBasket, Incident, KioskId } from '../types';
 
-const SOCKET_URL = 'http://localhost:5000';
+const SOCKET_URL = 'http://localhost:4000';
 
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null);
